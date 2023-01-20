@@ -10,5 +10,5 @@ pub use init::*;
 
 pub struct GodotPlugin;
 impl Plugin for GodotPlugin {
-    fn build(&self, app: &mut App) { app.add_plugin(plugins::DefaultGodotPlugin); }
+    fn build(&self, app: &mut App) { app.add_plugins(plugins::DefaultGodotPlugins); }
 }

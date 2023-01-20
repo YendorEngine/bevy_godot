@@ -1,15 +1,15 @@
+use bevy::{app::PluginGroupBuilder, prelude::PluginGroup};
+
 pub mod assets;
 pub mod core;
 pub mod packed_scene;
 
-use bevy::app::*;
-
-pub struct DefaultGodotPlugin;
-
-impl Plugin for DefaultGodotPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_plugin(core::GodotCorePlugin)
-            .add_plugin(assets::GodotAssetsPlugin)
-            .add_plugin(packed_scene::PackedScenePlugin);
+pub struct DefaultGodotPlugins;
+impl PluginGroup for DefaultGodotPlugins {
+    fn build(self) -> PluginGroupBuilder {
+        PluginGroupBuilder::start::<Self>()
+            .add(core::GodotCorePlugin)
+            .add(assets::GodotAssetsPlugin)
+            .add(packed_scene::PackedScenePlugin)
     }
 }

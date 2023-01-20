@@ -22,10 +22,16 @@ impl Autoload {
 
     #[method]
     fn _ready(&mut self, #[base] base: &Node) {
+        debug!("Autoload _ready");
+        debug!("Autoload _ready");
+
         let mut app = App::new();
-        app.add_plugin(GodotPlugin);
 
         (BEVY_INIT_FUNC.lock().as_mut().unwrap())(&mut app);
+
+        if !app.is_plugin_added::<GodotPlugin>() {
+            app.add_plugin(GodotPlugin);
+        }
 
         // SceneTree
         {

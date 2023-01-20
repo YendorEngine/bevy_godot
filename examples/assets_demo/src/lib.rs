@@ -4,7 +4,6 @@ use bevy_godot::prelude::*;
 fn init(_handle: &InitHandle) {}
 
 fn build_app(app: &mut App) {
-    println!("build_app");
     app.add_state(GameState::Loading)
         .add_loading_state(
             LoadingState::new(GameState::Loading)

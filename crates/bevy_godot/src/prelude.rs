@@ -28,4 +28,4 @@ pub use godot_prelude::{
     Transform2D as GodotTransform2D, Variant, Vector2, Vector3,
 };
 
-pub use crate::{bevy_godot_init, node_tree_view::NodeTreeView, GodotPlugin};
+pub use crate::{bevy_godot_init, node_tree_view::NodeTreeView, plugins::DefaultGodotPlugins, GodotPlugin};

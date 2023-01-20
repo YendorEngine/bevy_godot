@@ -27,11 +27,9 @@ pub mod input_event;
 pub use input_event::*;
 
 pub struct GodotCorePlugin;
-
 impl Plugin for GodotCorePlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(MinimalPlugins)
-            .add_plugin(bevy::log::LogPlugin::default())
             .add_plugin(bevy::diagnostic::DiagnosticsPlugin)
             .add_plugin(bevy::hierarchy::HierarchyPlugin)
             .add_plugin(GodotSceneTreePlugin)
@@ -39,6 +37,11 @@ impl Plugin for GodotCorePlugin {
             .add_plugin(GodotCollisionsPlugin)
             .add_plugin(GodotSignalsPlugin)
             .add_plugin(GodotInputEventPlugin);
+
+        if !app.is_plugin_added::<bevy::log::LogPlugin>() {
+            debug!("Adding LogPlugin from Bevy Godot");
+            app.add_plugin(bevy::log::LogPlugin::default());
+        }
     }
 }
 
