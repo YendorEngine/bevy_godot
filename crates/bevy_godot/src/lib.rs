@@ -5,13 +5,10 @@ pub mod node_tree_view;
 pub mod plugins;
 pub mod prelude;
 
-pub mod init_macro;
-pub use init_macro::*;
+pub mod init;
+pub use init::*;
 
 pub struct GodotPlugin;
-
 impl Plugin for GodotPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_plugin(plugins::DefaultGodotPlugin);
-    }
+    fn build(&self, app: &mut App) { app.add_plugin(plugins::DefaultGodotPlugin); }
 }

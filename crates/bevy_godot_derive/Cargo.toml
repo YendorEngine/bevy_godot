@@ -1,0 +1,12 @@
+[package]
+edition = "2021"
+name    = "bevy_godot_derive"
+version = "0.3.0"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1.0"
+quote       = "1.0"
+syn         = { version = "1.0", features = ["full", "extra-traits"] }

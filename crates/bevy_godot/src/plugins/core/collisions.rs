@@ -23,13 +23,9 @@ pub struct Collisions {
 }
 
 impl Collisions {
-    pub fn colliding(&self) -> &[Entity] {
-        &self.colliding_entities
-    }
+    pub fn colliding(&self) -> &[Entity] { &self.colliding_entities }
 
-    pub fn recent_collisions(&self) -> &[Entity] {
-        &self.recent_collisions
-    }
+    pub fn recent_collisions(&self) -> &[Entity] { &self.recent_collisions }
 }
 
 #[doc(hidden)]
@@ -69,18 +65,10 @@ fn update_godot_collisions(
         trace!(target: "godot_collisions_update", event = ?event);
 
         let target = all_entities.iter().find_map(|(ent, reference)| {
-            if reference.instance_id() == event.target {
-                Some(ent)
-            } else {
-                None
-            }
+            if reference.instance_id() == event.target { Some(ent) } else { None }
         });
         let collisions = entities.iter_mut().find_map(|(reference, collisions)| {
-            if reference.instance_id() == event.origin {
-                Some(collisions)
-            } else {
-                None
-            }
+            if reference.instance_id() == event.origin { Some(collisions) } else { None }
         });
 
         let (target, mut collisions) = match (target, collisions) {
@@ -92,7 +80,7 @@ fn update_godot_collisions(
             CollisionEventType::Started => {
                 collisions.colliding_entities.push(target);
                 collisions.recent_collisions.push(target);
-            }
+            },
             CollisionEventType::Ended => collisions.colliding_entities.retain(|x| *x != target),
         };
     }

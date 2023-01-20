@@ -1,9 +1,11 @@
+use std::{collections::HashMap, marker::PhantomData};
+
+use bevy::ecs::system::SystemParam;
+
 use crate::prelude::{
     godot_prelude::{Engine, FromVariant, SubClass, ToVariant, VariantArray, Viewport},
     *,
 };
-use bevy::ecs::system::SystemParam;
-use std::{collections::HashMap, marker::PhantomData};
 
 pub struct GodotSceneTreePlugin;
 
@@ -32,17 +34,13 @@ pub struct SceneTreeRef<'w, 's> {
 }
 
 impl<'w, 's> SceneTreeRef<'w, 's> {
-    pub fn get(&mut self) -> TRef<SceneTree> {
-        self.godot_ref.0.get()
-    }
+    pub fn get(&mut self) -> TRef<SceneTree> { self.godot_ref.0.get() }
 
     pub fn get_current_scene(&mut self) -> TRef<Node> {
         unsafe { self.get().current_scene().unwrap().assume_safe() }
     }
 
-    pub fn get_root(&mut self) -> TRef<Viewport> {
-        unsafe { self.get().root().unwrap().assume_safe() }
-    }
+    pub fn get_root(&mut self) -> TRef<Viewport> { unsafe { self.get().root().unwrap().assume_safe() } }
 
     pub fn add_to_scene<T: SubClass<Node>>(&mut self, node: TRef<T>) {
         self.get_current_scene().add_child(node.upcast(), true);
@@ -69,9 +67,7 @@ impl SceneTreeRefImpl {
 }
 
 impl Default for SceneTreeRefImpl {
-    fn default() -> Self {
-        Self(unsafe { ErasedGodotRef::new(Self::get_ref().assume_unique()) })
-    }
+    fn default() -> Self { Self(unsafe { ErasedGodotRef::new(Self::get_ref().assume_unique()) }) }
 }
 
 fn initialize_scene_tree(
@@ -86,13 +82,10 @@ fn initialize_scene_tree(
                 event_type: SceneTreeEventType::NodeAdded,
             });
 
-            node.get_children()
-                .assume_unique()
-                .into_iter()
-                .for_each(|child| {
-                    let child = child.to_object::<Node>().unwrap().assume_safe();
-                    traverse(child, events);
-                });
+            node.get_children().assume_unique().into_iter().for_each(|child| {
+                let child = child.to_object::<Node>().unwrap().assume_safe();
+                traverse(child, events);
+            });
         }
     }
 
@@ -120,14 +113,8 @@ pub enum SceneTreeEventType {
 
 fn connect_scene_tree(mut scene_tree: SceneTreeRef) {
     let scene_tree = scene_tree.get();
-    let watcher = unsafe {
-        scene_tree
-            .root()
-            .unwrap()
-            .assume_safe()
-            .get_node("Autoload/SceneTreeWatcher")
-            .unwrap()
-    };
+    let watcher =
+        unsafe { scene_tree.root().unwrap().assume_safe().get_node("Autoload/SceneTreeWatcher").unwrap() };
 
     scene_tree
         .connect(
@@ -180,15 +167,12 @@ impl<T: SubClass<Node>> From<&T> for Groups {
 
 impl std::ops::Deref for Groups {
     type Target = [String];
-    fn deref(&self) -> &Self::Target {
-        &self.groups
-    }
+
+    fn deref(&self) -> &Self::Target { &self.groups }
 }
 
 impl Groups {
-    pub fn is(&self, group_name: &str) -> bool {
-        self.groups.iter().any(|name| name == group_name)
-    }
+    pub fn is(&self, group_name: &str) -> bool { self.groups.iter().any(|name| name == group_name) }
 }
 
 #[doc(hidden)]
@@ -207,16 +191,16 @@ fn create_scene_tree_entity(
     scene_tree: &mut SceneTreeRef,
     entities: &mut Query<(&mut ErasedGodotRef, Entity)>,
 ) {
-    let mut ent_mapping = entities
-        .iter()
-        .map(|(reference, ent)| (reference.instance_id(), ent))
-        .collect::<HashMap<_, _>>();
+    let mut ent_mapping =
+        entities.iter().map(|(reference, ent)| (reference.instance_id(), ent)).collect::<HashMap<_, _>>();
     let scene_root = unsafe { scene_tree.get().root().unwrap().assume_safe() };
-    let collision_watcher = unsafe {
-        scene_root
-            .get_node("/root/Autoload/CollisionWatcher")
-            .unwrap()
-            .assume_safe()
+
+    let collision_watcher = scene_root.get_node("/root/Autoload/CollisionWatcher");
+    let collision_watcher = if let Some(collision_watcher) = collision_watcher {
+        unsafe { collision_watcher.assume_safe() }
+    } else {
+        eprintln!("CollisionWatcher not found");
+        return;
     };
 
     for event in events.into_iter() {
@@ -227,11 +211,7 @@ fn create_scene_tree_entity(
 
         match event.event_type {
             SceneTreeEventType::NodeAdded => {
-                let mut ent = if let Some(ent) = ent {
-                    commands.entity(ent)
-                } else {
-                    commands.spawn()
-                };
+                let mut ent = if let Some(ent) = ent { commands.entity(ent) } else { commands.spawn_empty() };
 
                 ent.insert(ErasedGodotRef::clone(&node))
                     .insert(Name::from(node.get::<Node>().name().to_string()));
@@ -287,21 +267,16 @@ fn create_scene_tree_entity(
                 ent_mapping.insert(node.get_instance_id(), ent);
 
                 if node.get_instance_id() != scene_root.get_instance_id() {
-                    let parent =
-                        unsafe { node.get_parent().unwrap().assume_safe().get_instance_id() };
-                    commands
-                        .entity(*ent_mapping.get(&parent).unwrap())
-                        .push_children(&[ent]);
+                    let parent = unsafe { node.get_parent().unwrap().assume_safe().get_instance_id() };
+                    commands.entity(*ent_mapping.get(&parent).unwrap()).push_children(&[ent]);
                 }
-            }
+            },
             SceneTreeEventType::NodeRemoved => {
                 commands.entity(ent.unwrap()).despawn_recursive();
-            }
+            },
             SceneTreeEventType::NodeRenamed => {
-                commands
-                    .entity(ent.unwrap())
-                    .insert(Name::from(node.get::<Node>().name().to_string()));
-            }
+                commands.entity(ent.unwrap()).insert(Name::from(node.get::<Node>().name().to_string()));
+            },
         }
     }
 }

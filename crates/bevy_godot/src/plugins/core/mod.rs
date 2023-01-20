@@ -1,9 +1,12 @@
+use std::{
+    marker::PhantomData,
+    time::{Duration, Instant},
+};
+
+use bevy::{ecs::system::SystemParam, MinimalPlugins};
+use iyes_loopless::{condition::ConditionalSystemDescriptor, prelude::*};
+
 use crate::prelude::*;
-use bevy::ecs::system::SystemParam;
-use iyes_loopless::condition::ConditionalSystemDescriptor;
-use iyes_loopless::prelude::*;
-use std::marker::PhantomData;
-use std::time::{Duration, Instant};
 
 pub mod godot_ref;
 pub use godot_ref::*;
@@ -27,10 +30,9 @@ pub struct GodotCorePlugin;
 
 impl Plugin for GodotCorePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(bevy::core::CorePlugin)
-            .add_plugin(bevy::log::LogPlugin)
+        app.add_plugins(MinimalPlugins)
+            .add_plugin(bevy::log::LogPlugin::default())
             .add_plugin(bevy::diagnostic::DiagnosticsPlugin)
-            .add_plugin(bevy::time::TimePlugin)
             .add_plugin(bevy::hierarchy::HierarchyPlugin)
             .add_plugin(GodotSceneTreePlugin)
             .add_plugin(GodotTransformsPlugin)
@@ -41,9 +43,11 @@ impl Plugin for GodotCorePlugin {
 }
 
 /// Bevy Resource that is available when the app is updated through `_process` callback
+#[derive(Default, Resource)]
 pub struct GodotVisualFrame;
 
 /// Bevy Resource that is available when the app is updated through `_physics_process` callback
+#[derive(Default, Resource)]
 pub struct GodotPhysicsFrame;
 
 /// Adds `as_physics_system` that schedules a system only for the physics frame
@@ -70,9 +74,6 @@ impl<Params, T: IntoSystem<(), (), Params>> AsVisualSystem<Params> for T {
     }
 }
 
-#[deprecated]
-pub type SystemDelta<'w, 's> = SystemDeltaTimer<'w, 's>;
-
 /// SystemParam to keep track of an independent delta time
 ///
 /// Not every system runs on a Bevy update and Bevy can be updated multiple
@@ -95,13 +96,9 @@ impl<'w, 's> SystemDeltaTimer<'w, 's> {
         now - last_time
     }
 
-    pub fn delta_seconds(&mut self) -> f32 {
-        self.delta().as_secs_f32()
-    }
+    pub fn delta_seconds(&mut self) -> f32 { self.delta().as_secs_f32() }
 
-    pub fn delta_seconds_f64(&mut self) -> f64 {
-        self.delta().as_secs_f64()
-    }
+    pub fn delta_seconds_f64(&mut self) -> f64 { self.delta().as_secs_f64() }
 }
 
 pub trait FindEntityByNameExt<T> {
@@ -109,8 +106,7 @@ pub trait FindEntityByNameExt<T> {
 }
 
 impl<'a, T: 'a, U> FindEntityByNameExt<T> for U
-where
-    U: Iterator<Item = (&'a Name, T)>,
+where U: Iterator<Item = (&'a Name, T)>
 {
     fn find_entity_by_name(mut self, name: &str) -> Option<T> {
         self.find_map(|(ent_name, t)| (ent_name.as_str() == name).then_some(t))

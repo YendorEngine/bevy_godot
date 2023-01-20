@@ -4,6 +4,7 @@ use bevy_godot::prelude::*;
 fn init(_handle: &InitHandle) {}
 
 fn build_app(app: &mut App) {
+    println!("build_app");
     app.add_state(GameState::Loading)
         .add_loading_state(
             LoadingState::new(GameState::Loading)
@@ -21,7 +22,7 @@ enum GameState {
     Playing,
 }
 
-#[derive(AssetCollection, Debug)]
+#[derive(AssetCollection, Debug, Resource)]
 struct GameAssets {
     #[asset(path = "simple_scene.tscn")]
     player: Handle<GodotResource>,
@@ -37,8 +38,5 @@ fn spawn_cube_asset(
         .find_map(|(name, transform)| (name.as_str() == "SpawnPosition").then_some(*transform))
         .unwrap();
 
-    commands
-        .spawn()
-        .insert(spawn_location)
-        .insert(GodotScene::from_handle(&game_assets.player));
+    commands.spawn_empty().insert(spawn_location).insert(GodotScene::from_handle(&game_assets.player));
 }

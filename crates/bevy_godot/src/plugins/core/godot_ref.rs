@@ -1,4 +1,3 @@
-use crate::prelude::*;
 use bevy::reflect::TypeUuid;
 use gdnative::{
     object::{
@@ -7,6 +6,8 @@ use gdnative::{
     },
     prelude::{GodotObject, ManuallyManaged, Object, Ref, SubClass, TRef},
 };
+
+use crate::prelude::*;
 
 #[derive(Component, Reflect, Clone, Default, Debug, TypeUuid)]
 #[reflect(Component)]
@@ -28,20 +29,17 @@ impl ErasedGodotRef {
     }
 
     /// # Safety
-    /// When using ErasedGodotRef as a Bevy Resource or Component, do not create duplicate references to the same instance because Godot is not completely thread-safe.
+    /// When using ErasedGodotRef as a Bevy Resource or Component, do not create duplicate
+    /// references to the same instance because Godot is not completely thread-safe.
     pub unsafe fn new<T: GodotObject<Memory = ManuallyManaged> + SubClass<Object>, Own: Ownership>(
         reference: Ref<T, Own>,
     ) -> Self
-    where
-        RefImplBound: SafeAsRaw<ManuallyManaged, Own>,
-    {
+    where RefImplBound: SafeAsRaw<ManuallyManaged, Own> {
         let obj = Object::cast_ref(reference.as_raw().cast().unwrap());
         Self::from_instance_id(obj.get_instance_id())
     }
 
-    pub fn instance_id(&self) -> i64 {
-        self.object_id
-    }
+    pub fn instance_id(&self) -> i64 { self.object_id }
 
     /// # Safety
     /// Look to [Self::new]

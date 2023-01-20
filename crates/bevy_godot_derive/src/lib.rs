@@ -20,8 +20,8 @@ fn node_tree_view(input: DeriveInput) -> Result<TokenStream2> {
             return Err(Error::new_spanned(
                 input,
                 "NodeTreeView must be used on structs",
-            ))
-        }
+            ));
+        },
     };
 
     if matches!(data_struct.fields, Fields::Unit) {
@@ -42,11 +42,11 @@ fn node_tree_view(input: DeriveInput) -> Result<TokenStream2> {
                 } else {
                     quote! { #expr, }
                 }
-            }
+            },
             Err(e) => {
                 field_errors.push(e);
                 TokenStream2::new()
-            }
+            },
         })
         .collect::<TokenStream2>();
 
@@ -88,9 +88,7 @@ fn create_get_node_expr(field: &Field) -> Result<TokenStream2> {
             (attr.path.segments[0].ident == "node").then_some(())?;
             attr.parse_args().ok()
         })
-        .ok_or_else(|| {
-            Error::new_spanned(field, "NodeTreeView: every field must have a #[node(..)]")
-        })?;
+        .ok_or_else(|| Error::new_spanned(field, "NodeTreeView: every field must have a #[node(..)]"))?;
 
     let optional = if field.ty == parse_quote!(ErasedGodotRef) {
         false

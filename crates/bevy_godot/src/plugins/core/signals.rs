@@ -28,17 +28,12 @@ impl GodotSignal {
             args,
         }
     }
-    pub fn name(&self) -> &str {
-        &self.name
-    }
 
-    pub fn origin(&self) -> ErasedGodotRef {
-        self.origin.clone()
-    }
+    pub fn name(&self) -> &str { &self.name }
 
-    pub fn args(&self) -> &[Variant] {
-        &self.args
-    }
+    pub fn origin(&self) -> ErasedGodotRef { self.origin.clone() }
+
+    pub fn args(&self) -> &[Variant] { &self.args }
 }
 
 #[doc(hidden)]
@@ -51,17 +46,11 @@ fn write_godot_signal_events(
     event_writer.send_batch(events.0.try_iter());
 }
 
-pub fn connect_godot_signal(
-    node: &mut ErasedGodotRef,
-    signal_name: &str,
-    scene_tree: &mut SceneTreeRef,
-) {
+pub fn connect_godot_signal(node: &mut ErasedGodotRef, signal_name: &str, scene_tree: &mut SceneTreeRef) {
     let node = node.get::<Object>();
     let scene_root = unsafe { scene_tree.get().root().unwrap().assume_safe() };
 
-    let signal_watcher = scene_root
-        .get_node("/root/Autoload/GodotSignalWatcher")
-        .unwrap();
+    let signal_watcher = scene_root.get_node("/root/Autoload/GodotSignalWatcher").unwrap();
 
     node.connect(
         signal_name,

@@ -1,23 +1,17 @@
+use std::time::Duration;
+
 use crate::prelude::{
-    godot_prelude::{
-        GodotError, GodotObject, RefCounted, Resource, ResourceLoader, SubClass, Unique,
-    },
+    godot_prelude::{GodotError, GodotObject, RefCounted, Resource, ResourceLoader, SubClass, Unique},
     *,
 };
-use std::time::Duration;
 
 pub struct GodotAssetsPlugin;
 impl Plugin for GodotAssetsPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(AssetServerSettings {
-            asset_folder: std::env::current_dir()
-                .unwrap()
-                .to_str()
-                .unwrap()
-                .to_string(),
+        app.add_plugin(bevy::asset::AssetPlugin {
             watch_for_changes: false,
+            asset_folder: std::env::current_dir().unwrap().to_str().unwrap().to_string(),
         })
-        .add_plugin(AssetPlugin)
         .add_asset::<GodotResource>()
         .add_asset::<ErasedGodotRef>()
         .init_asset_loader::<GodotResourceLoader>();
@@ -33,23 +27,17 @@ pub struct GodotResource(pub Ref<Resource>);
 
 impl GodotResource {
     pub fn new<T>(reference: Ref<T>) -> Self
-    where
-        T: GodotObject<Memory = RefCounted> + SubClass<Resource>,
-    {
+    where T: GodotObject<Memory = RefCounted> + SubClass<Resource> {
         Self(reference.upcast())
     }
 
     pub fn get<T>(&mut self) -> Ref<T, Unique>
-    where
-        T: GodotObject<Memory = RefCounted> + SubClass<Resource>,
-    {
+    where T: GodotObject<Memory = RefCounted> + SubClass<Resource> {
         self.try_get().unwrap()
     }
 
     pub fn try_get<T>(&mut self) -> Option<Ref<T, Unique>>
-    where
-        T: GodotObject<Memory = RefCounted> + SubClass<Resource>,
-    {
+    where T: GodotObject<Memory = RefCounted> + SubClass<Resource> {
         unsafe { self.0.clone().assume_unique().cast() }
     }
 }
@@ -65,10 +53,11 @@ impl AssetLoader for GodotResourceLoader {
                 let resource_loader = ResourceLoader::godot_singleton();
                 let loader = resource_loader
                     .load_interactive(
-                        "res://".to_owned()
-                            + load_context.path().to_str().ok_or_else(|| {
-                                anyhow::anyhow!("failed to convert asset path to string")
-                            })?,
+                        "res://".to_owned() +
+                            load_context
+                                .path()
+                                .to_str()
+                                .ok_or_else(|| anyhow::anyhow!("failed to convert asset path to string"))?,
                         "",
                     )
                     .ok_or_else(|| {
@@ -77,7 +66,7 @@ impl AssetLoader for GodotResourceLoader {
 
                 loop {
                     match unsafe { loader.assume_safe().poll() } {
-                        Ok(()) => {}
+                        Ok(()) => {},
                         Err(GodotError::FileEof) => break,
                         Err(e) => return Err(anyhow::anyhow!("failed to load godot asset: {}", e)),
                     }
@@ -103,7 +92,6 @@ impl AssetLoader for GodotResourceLoader {
             Ok(())
         })
     }
-    fn extensions(&self) -> &[&str] {
-        &["tscn", "scn", "res", "tres"]
-    }
+
+    fn extensions(&self) -> &[&str] { &["tscn", "scn", "res", "tres"] }
 }
