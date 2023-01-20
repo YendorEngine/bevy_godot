@@ -1,10 +1,10 @@
 use std::time::Duration;
 
 use crate::prelude::{
+    bevy_prelude::*,
     godot_prelude::{GodotError, GodotObject, RefCounted, Resource, ResourceLoader, SubClass, Unique},
     *,
 };
-
 pub struct GodotAssetsPlugin;
 impl Plugin for GodotAssetsPlugin {
     fn build(&self, app: &mut App) {

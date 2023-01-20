@@ -4,23 +4,18 @@ use once_cell::sync::Lazy;
 use parking_lot::Mutex;
 
 mod autoload;
-pub use autoload::*;
 mod collision;
-pub use collision::*;
 mod input;
-pub use input::*;
 mod scene_tree;
-pub use scene_tree::*;
 mod signal_watcher;
-pub use signal_watcher::*;
 
 pub static BEVY_INIT_FUNC: Lazy<Mutex<Option<Box<dyn Fn(&mut App) + Send>>>> = Lazy::new(|| Mutex::new(None));
 
 pub fn godot_init(init: &InitHandle) {
-    init.add_class::<Autoload>();
-    init.add_class::<CollisionWatcher>();
-    init.add_class::<SceneTreeWatcher>();
-    init.add_class::<InputEventWatcher>();
+    init.add_class::<autoload::Autoload>();
+    init.add_class::<input::InputEventWatcher>();
+    init.add_class::<collision::CollisionWatcher>();
+    init.add_class::<scene_tree::SceneTreeWatcher>();
     init.add_class::<signal_watcher::GodotSignalWatcher>();
 }
 

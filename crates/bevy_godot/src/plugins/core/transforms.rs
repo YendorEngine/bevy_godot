@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::prelude::{godot_prelude::*, *};
+use crate::prelude::{bevy_prelude::*, godot_prelude::*, *};
 
 pub struct GodotTransformsPlugin;
 

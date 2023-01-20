@@ -3,6 +3,7 @@ use std::{collections::HashMap, marker::PhantomData};
 use bevy::ecs::system::SystemParam;
 
 use crate::prelude::{
+    bevy_prelude::*,
     godot_prelude::{Engine, FromVariant, SubClass, ToVariant, VariantArray, Viewport},
     *,
 };

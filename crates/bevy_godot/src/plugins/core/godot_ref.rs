@@ -7,7 +7,7 @@ use gdnative::{
     prelude::{GodotObject, ManuallyManaged, Object, Ref, SubClass, TRef},
 };
 
-use crate::prelude::*;
+use crate::prelude::{bevy_prelude::*, *};
 
 #[derive(Component, Reflect, Clone, Default, Debug, TypeUuid)]
 #[reflect(Component)]

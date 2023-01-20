@@ -1,12 +1,12 @@
 use gdnative::api::packed_scene::GenEditState;
 
 use crate::prelude::{
+    bevy_prelude::*,
     godot_prelude::{PackedScene, ResourceLoader},
     *,
 };
 
 pub struct PackedScenePlugin;
-
 impl Plugin for PackedScenePlugin {
     fn build(&self, app: &mut App) {
         app.add_system_to_stage(CoreStage::PostUpdate, spawn_scene).register_type::<GodotScene>();

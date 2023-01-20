@@ -1,8 +1,12 @@
 use std::sync::mpsc::channel;
 
+use super::{
+    collision::CollisionWatcher, input::InputEventWatcher, scene_tree::SceneTreeWatcher,
+    signal_watcher::GodotSignalWatcher,
+};
 use crate::{
-    prelude::{godot_prelude::*, *},
-    CollisionWatcher, GodotSignalWatcher, InputEventWatcher, SceneTreeWatcher, BEVY_INIT_FUNC,
+    prelude::{bevy_prelude::*, godot_prelude::*, *},
+    BEVY_INIT_FUNC,
 };
 
 #[doc(hidden)]

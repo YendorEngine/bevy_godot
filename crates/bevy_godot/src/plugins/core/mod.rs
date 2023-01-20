@@ -6,7 +6,7 @@ use std::{
 use bevy::{ecs::system::SystemParam, MinimalPlugins};
 use iyes_loopless::{condition::ConditionalSystemDescriptor, prelude::*};
 
-use crate::prelude::*;
+use crate::prelude::{bevy_prelude::*, *};
 
 pub mod godot_ref;
 pub use godot_ref::*;

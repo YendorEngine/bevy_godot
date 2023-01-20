@@ -1,4 +1,5 @@
 use crate::prelude::{
+    bevy_prelude::*,
     godot_prelude::{InputEvent as GodotInputEvent, SubClass},
     *,
 };
